@@ -26,7 +26,10 @@ export const GetSingleEntrySchema = z.object({
 
 export const GetApiStructureSchema = z.object({});
 
+export const GetProjectContextSchema = z.object({});
+
 export const ToolSchemas: Record<string, z.ZodSchema> = {
+  get_project_context: GetProjectContextSchema,
   get_content_types: GetContentTypesSchema,
   get_components: GetComponentsSchema,
   get_collection_data: GetCollectionDataSchema,

@@ -6,9 +6,11 @@ import { getComponentsTool, handleGetComponents } from './get-components';
 import { getCollectionDataTool, handleGetCollectionData } from './get-collection-data';
 import { getSingleEntryTool, handleGetSingleEntry } from './get-single-entry';
 import { getApiStructureTool, handleGetApiStructure } from './get-api-structure';
+import { getProjectContextTool, handleGetProjectContext } from './get-project-context';
 
 // Export all tool definitions for MCP listing
 export const tools = [
+  getProjectContextTool,
   getApiStructureTool,
   getContentTypesTool,
   getComponentsTool,
@@ -21,6 +23,7 @@ const toolHandlers: Record<
   string,
   (strapi: Core.Strapi, args: unknown) => Promise<{ content: Array<{ type: string; text: string }> }>
 > = {
+  get_project_context: handleGetProjectContext,
   get_api_structure: handleGetApiStructure,
   get_content_types: handleGetContentTypes,
   get_components: handleGetComponents,
