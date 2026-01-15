@@ -1,0 +1,79 @@
+import type { Core } from '@strapi/strapi';
+import { createMcpServer } from './mcp/server';
+
+const PLUGIN_ID = 'strapi-builder-ai-mcp';
+const OAUTH_PLUGIN_ID = 'strapi-oauth-mcp-manager';
+
+/**
+ * Fallback auth middleware for when OAuth manager plugin is not installed.
+ * Requires Bearer token (Strapi API token) for MCP endpoints.
+ */
+function createFallbackAuthMiddleware(strapi: Core.Strapi) {
+  const mcpPath = `/api/${PLUGIN_ID}/mcp`;
+
+  return async (ctx: any, next: () => Promise<void>) => {
+    // Only apply to this plugin's MCP endpoint
+    if (!ctx.path.startsWith(mcpPath)) {
+      return next();
+    }
+
+    const authHeader = ctx.request.headers.authorization;
+
+    if (!authHeader?.startsWith('Bearer ')) {
+      ctx.status = 401;
+      ctx.body = {
+        error: 'Unauthorized',
+        message: 'Bearer token required. Provide a Strapi API token.',
+      };
+      return;
+    }
+
+    // Extract token and set it for the controller
+    const token = authHeader.slice(7);
+    ctx.state.strapiToken = token;
+    ctx.state.authMethod = 'api-token';
+
+    return next();
+  };
+}
+
+const bootstrap = async ({ strapi }: { strapi: Core.Strapi }) => {
+  strapi.log.info(`[${PLUGIN_ID}] Initializing MCP server...`);
+
+  // Register RBAC actions for the plugin
+  const actions = [
+    {
+      section: 'plugins',
+      displayName: 'Read',
+      uid: 'read',
+      pluginName: PLUGIN_ID,
+    },
+  ];
+
+  await strapi.admin.services.permission.actionProvider.registerMany(actions);
+
+  // Get the plugin instance
+  const plugin = strapi.plugin(PLUGIN_ID) as any;
+
+  // Attach MCP server factory to plugin
+  plugin.createMcpServer = () => createMcpServer(strapi);
+
+  // Initialize session storage
+  plugin.sessions = new Map();
+
+  // Check if OAuth manager is installed
+  const oauthPlugin = strapi.plugin(OAUTH_PLUGIN_ID);
+
+  if (oauthPlugin) {
+    strapi.log.info(`[${PLUGIN_ID}] OAuth manager detected - OAuth + API token auth enabled`);
+  } else {
+    // No OAuth manager - use fallback auth
+    const fallbackMiddleware = createFallbackAuthMiddleware(strapi);
+    strapi.server.use(fallbackMiddleware);
+    strapi.log.info(`[${PLUGIN_ID}] Using API token authentication (OAuth manager not installed)`);
+  }
+
+  strapi.log.info(`[${PLUGIN_ID}] MCP endpoint available at: /api/${PLUGIN_ID}/mcp`);
+};
+
+export default bootstrap;
