@@ -8,11 +8,13 @@ import { getSingleEntryTool, handleGetSingleEntry } from './get-single-entry';
 import { getApiStructureTool, handleGetApiStructure } from './get-api-structure';
 import { getProjectContextTool, handleGetProjectContext } from './get-project-context';
 import { getRoutesTool, handleGetRoutes } from './get-routes';
+import { fetchDataTool, handleFetchData } from './fetch-data';
 
 // Export all tool definitions for MCP listing
 export const tools = [
   getProjectContextTool,
   getRoutesTool,
+  fetchDataTool,
   getApiStructureTool,
   getContentTypesTool,
   getComponentsTool,
@@ -27,6 +29,7 @@ const toolHandlers: Record<
 > = {
   get_project_context: handleGetProjectContext,
   get_routes: handleGetRoutes,
+  fetch_data: handleFetchData,
   get_api_structure: handleGetApiStructure,
   get_content_types: handleGetContentTypes,
   get_components: handleGetComponents,

@@ -48,6 +48,7 @@ export async function handleGetRoutes(
       const apiId = uid.split('.').pop() || '';
       const kind = contentType.kind || 'collectionType';
       const displayName = contentType.info?.displayName || apiId;
+      const singularName = contentType.info?.singularName || apiId;
       const pluralName = contentType.info?.pluralName || apiId;
 
       // Check for slug field
@@ -57,13 +58,15 @@ export async function handleGetRoutes(
       );
 
       if (kind === 'singleType') {
+        // Single types use singular name
         singleTypes.push({
           name: apiId,
           displayName,
-          endpoint: `/api/${pluralName}`,
+          endpoint: `/api/${singularName}`,
           methods: ['GET', 'PUT', 'DELETE'],
         });
       } else {
+        // Collection types use plural name
         collectionTypes.push({
           name: apiId,
           displayName,

@@ -30,9 +30,14 @@ export const GetProjectContextSchema = z.object({});
 
 export const GetRoutesSchema = z.object({});
 
+export const FetchDataSchema = z.object({
+  route: z.string().min(1, 'Route is required'),
+});
+
 export const ToolSchemas: Record<string, z.ZodSchema> = {
   get_project_context: GetProjectContextSchema,
   get_routes: GetRoutesSchema,
+  fetch_data: FetchDataSchema,
   get_content_types: GetContentTypesSchema,
   get_components: GetComponentsSchema,
   get_collection_data: GetCollectionDataSchema,
