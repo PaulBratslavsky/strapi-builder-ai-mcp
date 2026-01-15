@@ -4,13 +4,15 @@ const PLUGIN_ID = 'strapi-builder-ai-mcp';
 
 export const getProjectContextTool = {
   name: 'get_project_context',
-  description: `ALWAYS call this first before building. Returns Strapi configuration including base URLs, endpoint settings, and available content types.
+  description: `ALWAYS call this first before building. Returns Strapi configuration including base URLs and endpoint settings.
 
 This provides essential context for:
 - Constructing correct API URLs in generated code
 - Referencing media assets with the correct domain
 - Understanding authentication requirements
-- Knowing what content types are available to work with
+
+IMPORTANT: After calling this tool, call get_routes to get the actual API endpoints.
+Do NOT hardcode or guess endpoints - always use the routes returned by get_routes.
 
 Call this tool at the start of any frontend building task.`,
   inputSchema: {
@@ -60,8 +62,9 @@ export async function handleGetProjectContext(
                 mediaUrl: 'Base URL for images and media assets',
                 publicEndpoints: 'Whether endpoints require authentication for GET requests',
                 apiPrefix: 'API path prefix (e.g., /api)',
-                availableContentTypes: 'Content types you can fetch data from',
+                availableContentTypes: 'Content types available - call get_routes for actual endpoints',
               },
+              nextStep: 'Call get_routes to get the actual API endpoints before generating code',
             },
             null,
             2
